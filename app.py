@@ -2,9 +2,23 @@ import streamlit as st
 import pandas as pd
 import pickle
 
-# Load model, scaler, feature names
+# Load model dan scaler
 model = pickle.load(open("rf_model.pkl", "rb"))
 scaler = pickle.load(open("scaler.pkl", "rb"))
+
+# Kolom yang digunakan saat training (harus persis sama urutan dan nama)
+feature_names = [
+    "Admission grade",
+    "Curricular units 1st sem (enrolled)",
+    "Curricular units 1st sem (approved)",
+    "Curricular units 1st sem (grade)",
+    "Debtor",
+    "Tuition fees up to date",
+    "Scholarship holder",
+    "Age at enrollment",
+    "Mother's qualification",
+    "Father's qualification"
+]
 
 st.title("🎓 Prediksi Dropout Mahasiswa")
 
@@ -20,22 +34,17 @@ age = st.slider("Usia Saat Masuk", 17, 50, 20)
 mother_edu = st.selectbox("Pendidikan Ibu", [0, 1, 2, 3, 4, 5])
 father_edu = st.selectbox("Pendidikan Ayah", [0, 1, 2, 3, 4, 5])
 
-# Buat dataframe input
+# Buat dataframe input dengan kolom yang sinkron
 input_data = pd.DataFrame([[
     admission_grade, units_enrolled, units_approved, units_grade,
     debtor, tuition_up_to_date, scholarship, age, mother_edu, father_edu
-]], columns=[
-    "Admission grade", "Curricular units 1st sem (enrolled)",
-    "Curricular units 1st sem (approved)", "Curricular units 1st sem (grade)",
-    "Debtor", "Tuition fees up to date", "Scholarship holder",
-    "Age at enrollment", "Mother's qualification", "Father's qualification"
-])
+]], columns=feature_names)
 
-# Scaling dan prediksi
+# Transform dan prediksi
 input_scaled = scaler.transform(input_data)
 pred = model.predict(input_scaled)[0]
 
-# Output
+# Output hasil prediksi
 if pred == 1:
     st.error("⚠️ Mahasiswa berisiko Dropout")
 else:
