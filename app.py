@@ -1,27 +1,29 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import pickle
 
-
-model = pickle.load(open("logreg_model.pkl", "rb"))
+model = pickle.load(open("rf_model.pkl", "rb"))
 scaler = pickle.load(open("scaler.pkl", "rb"))
+feature_names = pickle.load(open("feature_names.pkl", "rb"))
 
-st.title("Prediksi Dropout Mahasiswa 🎓")
+st.title("🎓 Prediksi Dropout Mahasiswa")
 
-ipk = st.number_input("IPK", 0.0, 4.0, 3.0)
-sks = st.number_input("Jumlah SKS", 0, 150, 100)
-kehadiran = st.slider("Persentase Kehadiran (%)", 0, 100, 80)
-pendapatan = st.number_input("Pendapatan Orang Tua (juta)", 0, 100, 10)
+user_input = {}
+for feature in feature_names:
+    if "grade" in feature or "rate" in feature or "GDP" in feature:
+        user_input[feature] = st.number_input(feature, value=0.0)
+    else:
+        user_input[feature] = st.number_input(feature, value=0)
 
-input_data = pd.DataFrame([[ipk, sks, kehadiran, pendapatan]],
-                          columns=["ipk","sks","kehadiran","pendapatan"])
+input_df = pd.DataFrame([user_input])
 
-input_scaled = scaler.transform(input_data)
+input_df = input_df[feature_names]
 
+input_scaled = scaler.transform(input_df)
+prediction = model.predict(input_scaled)[0]
 
-pred = model.predict(input_scaled)[0]
-
-if pred == 1:
+if prediction == 1:
     st.error("⚠️ Mahasiswa berisiko Dropout")
 else:
     st.success("✅ Mahasiswa tidak berisiko Dropout")
