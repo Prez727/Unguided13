@@ -70,6 +70,3 @@ with col3:
     st.subheader("📈 Performa Model")
     st.metric("Akurasi Model", f"{model_accuracy * 100:.2f}%")
 
-    st.markdown("### Fitur Terpenting")
-    for feat, score in sorted_features.items():
-        st.markdown(f"- **{feat}**: `{score:.4f}`")
